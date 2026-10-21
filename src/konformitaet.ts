@@ -5,7 +5,11 @@ import { ERWEITERUNGEN, PROTOKOLL } from './protokoll.ts'
 import { tagPlus } from './zeit.ts'
 
 /** Ruft einen Pfad unter /partner/v1 beim zu prüfenden System auf (z. B. app.request in Hono, fetch, supertest …) */
-export type Aufruf = (pfad: string, init: { method: 'GET' | 'POST'; headers: Record<string, string>; body?: string }) => Promise<{ status: number; json(): Promise<unknown> }>
+export interface Antwort {
+  status: number
+  json(): Promise<unknown>
+}
+export type Aufruf = (pfad: string, init: { method: 'GET' | 'POST'; headers: Record<string, string>; body?: string }) => Promise<Antwort> | Antwort
 
 export interface Pruefpunkt {
   name: string
