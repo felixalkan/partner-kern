@@ -13,8 +13,8 @@ export interface ProtokollTermin {
   ohneEnde?: boolean
   /** Prüfungsart (z. B. Klausur) – ganztägig gesetzt = Prüfungstag */
   art?: string
-  /** ganztägiger Arbeitstag: ganz belegt */
-  arbeit?: boolean
+  /** gesetzt (z. B. true oder { stunden }) bei ganztägigem Arbeitstag: ganz belegt */
+  arbeit?: unknown
   /** 'todo' = Aufgabe mit Uhrzeit, kein Termin – zählt nicht als belegt */
   quelle?: string
 }
