@@ -1,0 +1,29 @@
+{
+  "name": "@partner/kern",
+  "version": "1.0.0",
+  "description": "Gemeinsamer Kern des Partner-Protokolls (Terminfindung, Cowork, Konformitätsprüfung) für Argus, Minerva und weitere Systeme",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src", "PROTOKOLL.md", "AGENTS.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "pruefen": "tsc --noEmit -p tsconfig.json && vitest run"
+  },
+  "dependencies": {
+    "date-fns": "^4.4.0",
+    "date-fns-tz": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

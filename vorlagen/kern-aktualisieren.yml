@@ -1,0 +1,41 @@
+# Vorlage für jedes Partner-System: nach .github/workflows/ kopieren.
+# Holt die neueste Version von @partner/kern (^1), lässt die EIGENEN Tests laufen und übernimmt sie nur, wenn alles grün ist.
+# Privates Kern-Repo: Secret KERN_TOKEN (Fine-grained Token, nur Lesen auf partner-kern) anlegen.
+name: Partner-Kern übernehmen
+on:
+  schedule:
+    - cron: '17 * * * *'
+  repository_dispatch:
+    types: [partner-kern]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  uebernehmen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Zugriff auf das Kern-Repo
+        if: env.KERN_TOKEN != ''
+        env:
+          KERN_TOKEN: ${{ secrets.KERN_TOKEN }}
+        run: git config --global url."https://x-access-token:${KERN_TOKEN}@github.com/".insteadOf "https://github.com/"
+      - run: npm ci
+      - name: Neueste Kern-Version holen
+        run: npm install "github:Petzinger-code/partner-kern#semver:^1" --no-audit --no-fund
+      - name: Nichts Neues?
+        id: diff
+        run: git diff --quiet package.json package-lock.json && echo "neu=nein" >> "$GITHUB_OUTPUT" || echo "neu=ja" >> "$GITHUB_OUTPUT"
+      # Eigene Prüfung des Systems (Typen + Unit-Tests inkl. Konformität) – bei Argus: tsc + vitest
+      - if: steps.diff.outputs.neu == 'ja'
+        run: npx tsc --noEmit -p tsconfig.json && npx vitest run
+      - if: steps.diff.outputs.neu == 'ja'
+        run: |
+          git config user.name "partner-kern"
+          git config user.email "partner-kern@users.noreply.github.com"
+          git commit -am "Partner-Kern übernommen: $(node -p "require('./package-lock.json').packages['node_modules/@partner/kern'].resolved.split('#')[1]")"
+          git push

@@ -1,0 +1,39 @@
+name: Prüfen und veröffentlichen
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: write
+jobs:
+  pruefen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run pruefen
+      # Jeder grüne Stand auf main wird v1.N.0; Partner-Systeme beziehen "semver:^1"
+      - name: Version setzen
+        if: github.event_name == 'push'
+        run: |
+          if git tag --points-at HEAD | grep -q '^v1\.'; then exit 0; fi
+          letzte=$(git tag --list 'v1.*.0' --sort=-v:refname | head -n1)
+          if [ -z "$letzte" ]; then n=0; else n=$(( $(echo "$letzte" | cut -d. -f2) + 1 )); fi
+          git tag "v1.$n.0"
+          git push origin "v1.$n.0"
+      # Partner-Repos sofort anstoßen (sonst holen sie stündlich selbst); braucht ein Token mit Zugriff auf die Repos
+      - name: Partner anstoßen
+        if: github.event_name == 'push' && env.KERN_TOKEN != ''
+        env:
+          KERN_TOKEN: ${{ secrets.KERN_TOKEN }}
+        run: |
+          for repo in $(grep -v '^#' konsumenten.txt); do
+            curl -fsS -X POST -H "Authorization: Bearer $KERN_TOKEN" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$repo/dispatches" -d '{"event_type":"partner-kern"}' || echo "konnte $repo nicht anstoßen"
+          done
