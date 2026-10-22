@@ -26,7 +26,7 @@ jobs:
         run: git config --global url."https://x-access-token:${KERN_TOKEN}@github.com/".insteadOf "https://github.com/"
       - run: npm ci
       - name: Neueste Kern-Version holen
-        run: npm install "github:Petzinger-code/partner-kern#semver:^1" --no-audit --no-fund
+        run: npm install "github:felixalkan/partner-kern#semver:^1" --no-audit --no-fund
       - name: Nichts Neues?
         id: diff
         run: git diff --quiet package.json package-lock.json && echo "neu=nein" >> "$GITHUB_OUTPUT" || echo "neu=ja" >> "$GITHUB_OUTPUT"

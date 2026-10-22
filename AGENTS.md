@@ -21,7 +21,7 @@ alle Systeme **automatisch**, sobald die Tests grün sind. Deshalb gilt:
 
 ## Einbinden (TypeScript/Node)
 ```bash
-npm install "github:Petzinger-code/partner-kern#semver:^1"
+npm install "github:felixalkan/partner-kern#semver:^1"
 ```
 ```ts
 import { gemeinsameZeiten, angebotBereinigen, konformitaet, PROTOKOLL } from '@partner/kern'
