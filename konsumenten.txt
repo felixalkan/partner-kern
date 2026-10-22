@@ -1,2 +1,2 @@
 # Repos, die @partner/kern nutzen (owner/name), je Zeile eins
-Petzinger-code/argus-dashboard
+felixalkan/argus-dashboard
