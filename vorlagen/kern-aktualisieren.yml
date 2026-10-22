@@ -19,7 +19,9 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - name: Zugriff auf das Kern-Repo
+      # npm trägt GitHub-Abhängigkeiten gern als ssh:// ein – hier gibt es keinen SSH-Schlüssel
+      - run: git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+      - name: Zugriff auf das Kern-Repo (nur nötig, wenn es privat ist)
         if: env.KERN_TOKEN != ''
         env:
           KERN_TOKEN: ${{ secrets.KERN_TOKEN }}
@@ -37,5 +39,6 @@ jobs:
         run: |
           git config user.name "partner-kern"
           git config user.email "partner-kern@users.noreply.github.com"
+          sed -i 's#git+ssh://git@github.com/#git+https://github.com/#g' package-lock.json
           git commit -am "Partner-Kern übernommen: $(node -p "require('./package-lock.json').packages['node_modules/@partner/kern'].resolved.split('#')[1]")"
           git push
